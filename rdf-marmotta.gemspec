@@ -14,6 +14,9 @@ Gem::Specification.new do |s|
   s.required_ruby_version     = '>= 1.9.3'
 
   s.add_dependency('rdf', '~> 1.1')
+  s.add_dependency('nokogiri')
+  s.add_dependency('rdf-rdfxml', '~> 1.1')
+  s.add_dependency('sparql-client', '~> 1.1')
   s.add_development_dependency('rspec')
   s.add_development_dependency('rspec-its')
   s.add_development_dependency('rdf-spec')
