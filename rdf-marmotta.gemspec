@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.email       = 'tom@dp.la'
   s.summary     = %q{RDF::Repository layer for Apache Marmotta.}
   s.description = %q{RDF::Repository layer for Apache Marmotta.}
-  s.license     = "undeclared"
+  s.license     = "Unlicense"
   s.required_ruby_version     = '>= 1.9.3'
 
   s.add_dependency('rdf', '~> 1.1')
