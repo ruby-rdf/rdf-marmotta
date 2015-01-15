@@ -18,7 +18,8 @@ module RDF
       @endpoints = DEFAULT_OPTIONS
       @endpoints.merge!(options)
       @endpoints.each do |k, v|
-        @endpoints[k] = ::URI.join(base_url, v)
+        next unless RDF::URI(v.to_s).relative?
+        @endpoints[k] = (RDF::URI(base_url.to_s) / v.to_s)
       end
     end
 
