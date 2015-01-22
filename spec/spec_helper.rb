@@ -1,3 +1,6 @@
+require 'codeclimate-test-reporter'
+CodeClimate::TestReporter.start
+
 require 'linkeddata'
 require 'bundler/setup'
 Bundler.setup
