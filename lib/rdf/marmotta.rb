@@ -4,9 +4,10 @@ require 'sparql/client'
 require 'enumerator'
 
 module RDF
-  class Marmotta < ::RDF::Repository
+  class Marmotta < ::SPARQL::Client::Repository
 
     attr_accessor :endpoints
+    attr_reader :update_client
 
     DEFAULT_OPTIONS = {
       :sparql => 'sparql/select',
@@ -28,53 +29,33 @@ module RDF
     end
 
     def initialize(base_url, options = {})
+      @options = options.dup
       @endpoints = DEFAULT_OPTIONS
       @endpoints.merge!(options)
       @endpoints.each do |k, v|
         next unless RDF::URI(v.to_s).relative?
         @endpoints[k] = (RDF::URI(base_url.to_s) / v.to_s)
       end
+      @client = Client.new(endpoints[:sparql].to_s, options)
+      @update_client = Client.new(endpoints[:sparql_update].to_s, options)
     end
 
     def query_client
-      @query_client ||= Client.new(endpoints[:sparql])
+      @client
     end
 
-    def update_client
-      @update_client ||= Client.new(endpoints[:sparql_update])
-    end
-
-    # @see RDF::Enumerable#each.
-    def each(&block)
-      query_client.construct([:s, :p, :o]).where([:s, :p, :o]).each_statement(&block)
-    end
-
-    # @see RDF::Mutable#insert_statement
-    def insert_statement(statement)
-      insert_statements([statement])
-    end
-
-    def insert_statements(statements)
-      update_client.insert_data(statements)
-    end
-
-    # @see RDF::Mutable#delete_statement
     def delete_statement(statement)
-      delete_statements([statement])
+      delete(statement)
     end
 
-    def delete_statements(statements)
-      constant = statements.all? do |value|
-        !value.respond_to?(:each_statement) && begin
-          statement = RDF::Statement.from(value)
-          statement.constant? && !statement.has_blank_nodes?
-        end
-      end
-
-      if constant
-        update_client.delete_data(statements)
-      else
-        update_client.delete_insert(statements)
+    def count
+      begin
+        binding = client.query("SELECT (COUNT(*) AS ?no) WHERE { ?s ?p ?o }").first.to_hash
+        binding[binding.keys.first].value.to_i
+      rescue SPARQL::Client::ServerError
+        count = 0
+        each_statement { count += 1 }
+        count
       end
     end
 
