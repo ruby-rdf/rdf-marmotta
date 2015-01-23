@@ -58,7 +58,7 @@ describe RDF::Marmotta do
       expect(subject.count).to eq 2 # returns 0
     end
 
-    xit 'identifies triples with bnodes as existing' do
+    it 'identifies triples with bnodes as existing' do
       subject << node_triple
       expect(subject).to have_triple node_triple # returns false
     end
@@ -79,14 +79,14 @@ describe RDF::Marmotta do
 
     ##
     # This tests an issue that may be an upstream Marmotta problem
-    xit 'handles large inserts (marmotta)' do
-      expect { subject.insert_statements(statements) }.not_to raise_error
+    it 'handles large inserts (marmotta)' do
+      expect { subject.__send__(:insert_statements,statements) }.not_to raise_error
     end
 
     ##
     # This tests an issue that may be an upstream RDF.rb problem
-    xit 'handles large inserts (rdf.rb)' do
-      expect { subject << statements }.not_to raise_error
+    it 'handles large inserts (rdf.rb)' do
+      expect { subject.insert(*statements) }.not_to raise_error
     end
   end
 
@@ -104,7 +104,7 @@ describe RDF::Marmotta do
     xit 'deletes triples even when some are not in store' do
       statement.object = RDF::Literal('Moominpapa')
       subject << statement
-      subject.delete_statements(statements)
+      subject.delete(*statements)
       expect(subject.count).to eq 0
     end
   end
