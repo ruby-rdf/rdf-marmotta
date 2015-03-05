@@ -8,7 +8,8 @@ require 'rdf/marmotta'
 
 describe RDF::Marmotta do
 
-  let(:base_url) { 'http://localhost:8983/marmotta/' }
+  let(:port) { '8983' }
+  let(:base_url) { "http://localhost:#{port}/marmotta/" }
   let(:opts) { {} }
   let(:statement) { RDF::Statement(RDF::URI('http://api.dp.la/example/item/1234'), RDF::DC.title, 'Moomin') }
   let(:statements) {
@@ -83,6 +84,10 @@ describe RDF::Marmotta do
       expect { subject.insert(*statements) }.not_to raise_error
     end
 
+    it 'handles requests that are too big for a GET url' do
+      expect(subject.update_client.request(large_insert)).to be_kind_of Net::HTTPOK
+    end
+
     ##
     # This tests an issue that may be an upstream RDF.rb problem
     it 'handles large inserts (rdf.rb)' do
@@ -121,4 +126,115 @@ describe RDF::Marmotta do
 
   #   include RDF_Repository
   # end
+end
+
+
+def large_insert
+  <<EOF
+INSERT DATA {
+_:b0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://id.loc.gov/ontologies/RecordInfo#RecordInfo> .
+_:b0 <http://id.loc.gov/ontologies/RecordInfo#languageOfCataloging> <http://id.loc.gov/vocabulary/iso639-2/eng> .
+_:b0 <http://id.loc.gov/ontologies/RecordInfo#recordChangeDate> "2008-03-05T05:30:10"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+_:b0 <http://id.loc.gov/ontologies/RecordInfo#recordContentSource> <http://id.loc.gov/vocabulary/organizations/dlc> .
+_:b0 <http://id.loc.gov/ontologies/RecordInfo#recordStatus> "revised" .
+_:b1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/vocab/changeset/schema#ChangeSet> .
+_:b1 <http://purl.org/vocab/changeset/schema#changeReason> "new" .
+_:b1 <http://purl.org/vocab/changeset/schema#createdDate> "1988-04-25T00:00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+_:b1 <http://purl.org/vocab/changeset/schema#creatorName> <http://id.loc.gov/vocabulary/organizations/dlc> .
+_:b1 <http://purl.org/vocab/changeset/schema#subjectOfChange> <http://id.loc.gov/authorities/names/n87914041> .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#CorporateName> .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Authority> .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+<http://id.loc.gov/authorities/names/n87914041> <http://id.loc.gov/vocabulary/identifiers/lccn> "n 87914041" .
+<http://id.loc.gov/authorities/names/n87914041> <http://id.loc.gov/vocabulary/identifiers/oclcnum> "oca02258986" .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.loc.gov/mads/rdf/v1#adminMetadata> _:b20 .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.loc.gov/mads/rdf/v1#adminMetadata> _:b0 .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.loc.gov/mads/rdf/v1#authoritativeLabel> "American Film Manufacturing Company"@en .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.loc.gov/mads/rdf/v1#elementList> _:b13 .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.loc.gov/mads/rdf/v1#hasExactExternalAuthority> <http://viaf.org/viaf/sourceID/LC%7Cn+87914041#skos:Concept> .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.loc.gov/mads/rdf/v1#hasSource> _:b10 .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.loc.gov/mads/rdf/v1#hasSource> _:b17 .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.loc.gov/mads/rdf/v1#hasSource> _:b18 .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.loc.gov/mads/rdf/v1#hasSource> _:b12 .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.loc.gov/mads/rdf/v1#hasVariant> _:b4 .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.loc.gov/mads/rdf/v1#hasVariant> _:b8 .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.loc.gov/mads/rdf/v1#hasVariant> _:b21 .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.loc.gov/mads/rdf/v1#identifiesRWO> _:b2 .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSCollection> <http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings> .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSCollection> <http://id.loc.gov/authorities/names/collection_LCNAF> .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.loc.gov/mads/rdf/v1#isMemberOfMADSScheme> <http://id.loc.gov/authorities/names> .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.w3.org/2004/02/skos/core#altLabel> "American Film Company"@en .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.w3.org/2004/02/skos/core#altLabel> "North American Film Corporation"@en .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.w3.org/2004/02/skos/core#altLabel> "Flying A Studio"@en .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.w3.org/2004/02/skos/core#changeNote> _:b1 .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.w3.org/2004/02/skos/core#changeNote> _:b22 .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.w3.org/2004/02/skos/core#exactMatch> <http://viaf.org/viaf/sourceID/LC%7Cn+87914041#skos:Concept> .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.w3.org/2004/02/skos/core#inScheme> <http://id.loc.gov/authorities/names> .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.w3.org/2004/02/skos/core#prefLabel> "American Film Manufacturing Company"@en .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.w3.org/2008/05/skos-xl#altLabel> _:b16 .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.w3.org/2008/05/skos-xl#altLabel> _:b19 .
+<http://id.loc.gov/authorities/names/n87914041> <http://www.w3.org/2008/05/skos-xl#altLabel> _:b7 .
+_:b2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#RWO> .
+_:b2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Organization> .
+_:b3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#NameElement> .
+_:b3 <http://www.loc.gov/mads/rdf/v1#elementValue> "American Film Company"@en .
+_:b4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#CorporateName> .
+_:b4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Variant> .
+_:b4 <http://www.loc.gov/mads/rdf/v1#elementList> _:b5 .
+_:b4 <http://www.loc.gov/mads/rdf/v1#variantLabel> "American Film Company"@en .
+_:b5 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:b3 .
+_:b5 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+_:b6 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#NameElement> .
+_:b6 <http://www.loc.gov/mads/rdf/v1#elementValue> "North American Film Corporation"@en .
+_:b7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2008/05/skos-xl#Label> .
+_:b7 <http://www.w3.org/2008/05/skos-xl#literalForm> "Flying A Studio"@en .
+_:b8 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#CorporateName> .
+_:b8 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Variant> .
+_:b8 <http://www.loc.gov/mads/rdf/v1#elementList> _:b9 .
+_:b8 <http://www.loc.gov/mads/rdf/v1#variantLabel> "North American Film Corporation"@en .
+_:b9 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:b6 .
+_:b9 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+_:b10 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Source> .
+_:b10 <http://www.loc.gov/mads/rdf/v1#citation-note> "credits (American Film Manufacturing Company)"@en .
+_:b10 <http://www.loc.gov/mads/rdf/v1#citation-source> "The Rose of San Juan [MP] 1913:" .
+_:b10 <http://www.loc.gov/mads/rdf/v1#citation-status> "found" .
+_:b11 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#NameElement> .
+_:b11 <http://www.loc.gov/mads/rdf/v1#elementValue> "Flying A Studio"@en .
+_:b12 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Source> .
+_:b12 <http://www.loc.gov/mads/rdf/v1#citation-note> "CIP galley (American Film Manufacturing Co. was popularly known as the Flying A Studio)"@en .
+_:b12 <http://www.loc.gov/mads/rdf/v1#citation-source> "Lawton, S. Santa Barbara's Flying A Studio, 1997:" .
+_:b12 <http://www.loc.gov/mads/rdf/v1#citation-status> "found" .
+_:b13 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:b14 .
+_:b13 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+_:b14 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#NameElement> .
+_:b14 <http://www.loc.gov/mads/rdf/v1#elementValue> "American Film Manufacturing Company"@en .
+_:b15 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> _:b11 .
+_:b15 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+_:b16 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2008/05/skos-xl#Label> .
+_:b16 <http://www.w3.org/2008/05/skos-xl#literalForm> "American Film Company"@en .
+_:b17 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Source> .
+_:b17 <http://www.loc.gov/mads/rdf/v1#citation-note> "(hdg.: American Film Manufacturing Company)"@en .
+_:b17 <http://www.loc.gov/mads/rdf/v1#citation-source> "LC data base, 9-16-87" .
+_:b17 <http://www.loc.gov/mads/rdf/v1#citation-status> "found" .
+_:b18 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Source> .
+_:b18 <http://www.loc.gov/mads/rdf/v1#citation-source> "The Great Stanley secret. Chapter 1, The gipsy's trust [MP] 1917 (produced by American Film Company; North American Film Corporation presents)" .
+_:b18 <http://www.loc.gov/mads/rdf/v1#citation-status> "found" .
+_:b19 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2008/05/skos-xl#Label> .
+_:b19 <http://www.w3.org/2008/05/skos-xl#literalForm> "North American Film Corporation"@en .
+_:b20 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://id.loc.gov/ontologies/RecordInfo#RecordInfo> .
+_:b20 <http://id.loc.gov/ontologies/RecordInfo#languageOfCataloging> <http://id.loc.gov/vocabulary/iso639-2/eng> .
+_:b20 <http://id.loc.gov/ontologies/RecordInfo#recordChangeDate> "1988-04-25T00:00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+_:b20 <http://id.loc.gov/ontologies/RecordInfo#recordContentSource> <http://id.loc.gov/vocabulary/organizations/dlc> .
+_:b20 <http://id.loc.gov/ontologies/RecordInfo#recordStatus> "new" .
+_:b21 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#CorporateName> .
+_:b21 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.loc.gov/mads/rdf/v1#Variant> .
+_:b21 <http://www.loc.gov/mads/rdf/v1#elementList> _:b15 .
+_:b21 <http://www.loc.gov/mads/rdf/v1#variantLabel> "Flying A Studio"@en .
+_:b22 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/vocab/changeset/schema#ChangeSet> .
+_:b22 <http://purl.org/vocab/changeset/schema#changeReason> "revised" .
+_:b22 <http://purl.org/vocab/changeset/schema#createdDate> "2008-03-05T05:30:10"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+_:b22 <http://purl.org/vocab/changeset/schema#creatorName> <http://id.loc.gov/vocabulary/organizations/dlc> .
+_:b22 <http://purl.org/vocab/changeset/schema#subjectOfChange> <http://id.loc.gov/authorities/names/n87914041> .
+}
+EOF
 end
