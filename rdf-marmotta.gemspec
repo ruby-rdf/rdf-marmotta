@@ -18,9 +18,9 @@ Gem::Specification.new do |s|
 
   s.add_dependency('rake')
   s.add_dependency('rdf', '~> 1.1')
+  s.add_dependency('sparql-client', '~> 1.1.4')
   s.add_dependency('nokogiri')
   s.add_dependency('rdf-rdfxml', '~> 1.1')
-  s.add_dependency('sparql-client', '~> 1.1')
   s.add_development_dependency('jettywrapper')
   s.add_development_dependency('linkeddata')
   s.add_development_dependency('rspec')
