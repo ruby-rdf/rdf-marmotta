@@ -80,7 +80,15 @@ module RDF
           (query.respond_to?(:expects_statements?) ?
            query.expects_statements? :
            (query =~ /CONSTRUCT|DESCRIBE|DELETE|CLEAR/))
+
         super
+      end
+
+      # Do HTTP POST if it's an INSERT
+      def request_method(query)
+        method = (self.options[:method] || DEFAULT_METHOD).to_sym
+        method = :post if query.to_s =~ /INSERT/
+        method
       end
     end
   end
