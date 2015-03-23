@@ -1,7 +1,7 @@
 RDF::Marmotta
 =============
 
-A Ruby RDF::Repository implementation for Apache Marmotta.
+A Ruby RDF::Repository implementation for [Apache Marmotta](http://marmotta.apache.org).
 
 Installing & Using
 ------------------

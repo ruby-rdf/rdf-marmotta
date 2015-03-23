@@ -8,7 +8,7 @@ require 'rdf/marmotta'
 
 describe RDF::Marmotta do
 
-  let(:base_url) { 'http://localhost:8080/marmotta/' }
+  let(:base_url) { 'http://localhost:8983/marmotta/' }
   let(:opts) { {} }
   let(:statement) { RDF::Statement(RDF::URI('http://api.dp.la/example/item/1234'), RDF::DC.title, 'Moomin') }
   let(:statements) {

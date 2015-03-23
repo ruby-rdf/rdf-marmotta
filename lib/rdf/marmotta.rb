@@ -14,11 +14,25 @@ module RDF
       :ldpath => 'ldpath'
     }
 
+    ##
+    # Supported Accept headers for Marmotta. As of 3.3.0, Marmotta will reject
+    # a request if the first content type listed is not suppported.
+    #
+    # @see https://issues.apache.org/jira/browse/MARMOTTA-585
+    CTYPES = RDF::Format.content_types.select do |key, values|
+      !(values.map(&:to_s) & ['RDF::RDFXML::Format',
+                              'RDF::Turtle::Format',
+                              'RDF::TriG::Format',
+                              'RDF::TriX::Format',
+                              'RDF::N3::Format']).empty?
+    end
+
     def initialize(base_url, options = {})
       @endpoints = DEFAULT_OPTIONS
       @endpoints.merge!(options)
       @endpoints.each do |k, v|
-        @endpoints[k] = ::URI.join(base_url, v)
+        next unless RDF::URI(v.to_s).relative?
+        @endpoints[k] = (RDF::URI(base_url.to_s) / v.to_s)
       end
     end
 
@@ -69,9 +83,22 @@ module RDF
     end
 
     class Client < SPARQL::Client
+      MARMOTTA_GRAPH_ALL = (Marmotta::CTYPES.keys + ['*/*;p=0.1'])
+        .join(', ').freeze
+
       def initialize(url, options = {}, &block)
         options[:method] ||= :get
         options[:protocol] ||= '1.1'
+        super
+      end
+
+      ##
+      # Limit to accepted content types per comment on RDF::Marmotta::CTYPES
+      def request(query, headers={}, &block)
+        headers['Accept'] ||= MARMOTTA_GRAPH_ALL if
+          (query.respond_to?(:expects_statements?) ?
+           query.expects_statements? :
+           (query =~ /CONSTRUCT|DESCRIBE|DELETE|CLEAR/))
         super
       end
     end
