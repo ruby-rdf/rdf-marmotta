@@ -7,7 +7,6 @@ require 'rdf/spec/repository'
 require 'rdf/marmotta'
 
 describe RDF::Marmotta do
-
   let(:port) { '8983' }
   let(:base_url) { "http://localhost:#{port}/marmotta/" }
   let(:opts) { {} }
@@ -31,101 +30,94 @@ describe RDF::Marmotta do
 
   subject { RDF::Marmotta.new(base_url, opts) }
 
-  after do
-    subject.clear
+  it_behaves_like 'an RDF::Repository' do
+    let(:repository) { RDF::Marmotta.new(base_url, opts) }
   end
 
-  describe 'initializing' do
-    describe 'webservice endpoints' do
-      it 'has sparql endpoint' do
-        expect(subject.query_client).to be_a SPARQL::Client
-        expect(subject.update_client).to be_a SPARQL::Client
+  context do
+    after do
+      subject.clear
+    end
+
+    describe 'initializing' do
+      describe 'webservice endpoints' do
+        it 'has sparql endpoint' do
+          expect(subject.query_client).to be_a SPARQL::Client
+          expect(subject.update_client).to be_a SPARQL::Client
+        end
+      end
+    end
+
+    ##
+    # We probably want to pursue skolemization and/or talk to Marmotta
+    # folks about how they currently/should handle bnodes.
+    describe 'bnode handling' do
+
+      let(:node_triple) { RDF::Statement(RDF::Node.new, RDF::DC.title, 'Moomin') }
+
+      xit 'deletes only the relevant bnode' do
+        subject << node_triple
+        subject << [RDF::Node.new, RDF::DC.title, 'Moomin']
+        subject << [RDF::Node.new, RDF::DC.title, 'Moomin']
+        subject.delete_statement(node_triple)
+        expect(subject.count).to eq 2 # returns 0
+      end
+
+      it 'identifies triples with bnodes as existing' do
+        subject << node_triple
+        expect(subject).to have_triple node_triple # returns false
+      end
+    end
+
+    describe 'inserting' do
+      before do
+        subject << statement
+      end
+
+      it 'writes values' do
+        expect(subject.count).to eq 1
+      end
+
+      it 'writes correct values' do
+        expect(subject).to have_triple statement
+      end
+
+      ##
+      # This tests an issue that may be an upstream Marmotta problem
+      it 'handles large inserts (marmotta)' do
+        expect { subject.insert(*statements) }.not_to raise_error
+      end
+
+      it 'handles requests that are too big for a GET url' do
+        expect(subject.update_client.request(large_insert)).to be_kind_of Net::HTTPOK
+      end
+
+      ##
+      # This tests an issue that may be an upstream RDF.rb problem
+      it 'handles large inserts (rdf.rb)' do
+        expect { subject.insert(*statements) }.not_to raise_error
+      end
+    end
+
+    describe 'deleting' do
+
+      it 'delete triples' do
+        subject.delete(statement)
+        expect(subject.count).to eq 0
+      end
+
+      ##
+      # This tests an issue that may be an upstream Marmotta problem.
+      # It may be the same issue as above. Could be same issue as above,
+      # or at least related.
+      xit 'deletes triples even when some are not in store' do
+        statement.object = RDF::Literal('Moominpapa')
+        subject << statement
+        subject.delete(*statements)
+        expect(subject.count).to eq 0
       end
     end
   end
-
-  ##
-  # We probably want to pursue skolemization and/or talk to Marmotta
-  # folks about how they currently/should handle bnodes.
-  describe 'bnode handling' do
-
-    let(:node_triple) { RDF::Statement(RDF::Node.new, RDF::DC.title, 'Moomin') }
-
-    xit 'deletes only the relevant bnode' do
-      subject << node_triple
-      subject << [RDF::Node.new, RDF::DC.title, 'Moomin']
-      subject << [RDF::Node.new, RDF::DC.title, 'Moomin']
-      subject.delete_statement(node_triple)
-      expect(subject.count).to eq 2 # returns 0
-    end
-
-    it 'identifies triples with bnodes as existing' do
-      subject << node_triple
-      expect(subject).to have_triple node_triple # returns false
-    end
-  end
-
-  describe 'inserting' do
-    before do
-      subject << statement
-    end
-
-    it 'writes values' do
-      expect(subject.count).to eq 1
-    end
-
-    it 'writes correct values' do
-      expect(subject).to have_triple statement
-    end
-
-    ##
-    # This tests an issue that may be an upstream Marmotta problem
-    it 'handles large inserts (marmotta)' do
-      expect { subject.insert(*statements) }.not_to raise_error
-    end
-
-    it 'handles requests that are too big for a GET url' do
-      expect(subject.update_client.request(large_insert)).to be_kind_of Net::HTTPOK
-    end
-
-    ##
-    # This tests an issue that may be an upstream RDF.rb problem
-    it 'handles large inserts (rdf.rb)' do
-      expect { subject.insert(*statements) }.not_to raise_error
-    end
-  end
-
-  describe 'deleting' do
-
-    it 'delete triples' do
-      subject.delete(statement)
-      expect(subject.count).to eq 0
-    end
-
-    ##
-    # This tests an issue that may be an upstream Marmotta problem.
-    # It may be the same issue as above. Could be same issue as above,
-    # or at least related.
-    xit 'deletes triples even when some are not in store' do
-      statement.object = RDF::Literal('Moominpapa')
-      subject << statement
-      subject.delete(*statements)
-      expect(subject.count).to eq 0
-    end
-  end
-
-
-  # describe 'Repository' do
-  #   before do
-  #     @repository = subject
-  #   end
-
-  #   after do
-  #     @repository.clear
-  #   end
-
-  #   include RDF_Repository
-  # end
 end
 
 

@@ -48,17 +48,6 @@ module RDF
       delete(statement)
     end
 
-    def count
-      begin
-        binding = client.query("SELECT (COUNT(*) AS ?no) WHERE { ?s ?p ?o }").first.to_hash
-        binding[binding.keys.first].value.to_i
-      rescue SPARQL::Client::ServerError
-        count = 0
-        each_statement { count += 1 }
-        count
-      end
-    end
-
     def clear
       update_client.query("DELETE { ?s ?p ?o } WHERE { ?s ?p ?o }")
     end
