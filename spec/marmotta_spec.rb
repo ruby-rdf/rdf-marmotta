@@ -11,7 +11,7 @@ describe RDF::Marmotta do
   let(:port) { '8983' }
   let(:base_url) { "http://localhost:#{port}/marmotta/" }
   let(:opts) { {} }
-  let(:statement) { RDF::Statement(RDF::URI('http://api.dp.la/example/item/1234'), RDF::DC.title, 'Moomin') }
+  let(:statement) { RDF::Statement(RDF::URI('http://api.dp.la/example/item/1234'), RDF::Vocab::DC.title, 'Moomin') }
   let(:statements) {
     nodes = [RDF::Node.new, RDF::Node.new, RDF::Node.new]
     [
@@ -20,12 +20,12 @@ describe RDF::Marmotta do
      RDF::Statement(RDF::URI('http://dbpedia.org/resource/Moomin'), RDF::URI('http://dbpedia.org/ontology/country'), RDF::URI('http://dbpedia.org/resource/Finland')),
      RDF::Statement(RDF::URI('http://dbpedia.org/resource/Moomin'), RDF::URI('http://dbpedia.org/ontology/illustrator'), RDF::URI('http://dbpedia.org/resource/Tove_Jansson')),
      RDF::Statement(RDF::URI('http://dbpedia.org/resource/Moomin'), RDF::URI('http://dbpedia.org/ontology/abstract'), RDF::Literal.new("Muminki (szw. Mumintroll, fiń. Muumi) – fikcyjne istoty o antropomorficznej budowie ciała (nieco podobne do hipopotamów, ale dwunożne), zamieszkujące pewną dolinę gdzieś w Finlandii, bohaterowie cyklu dziewięciu książek fińskiej (piszącej po szwedzku) pisarki Tove Jansson. Są one odmianą trolli. Pierwsza książka o Muminkach, Małe trolle i duża powódź, została opublikowana przez Tove Jansson w 1945 (pierwsza wersja powstała już zimą 1939 roku).Wszystkie książki o Muminkach odniosły sukces: zostały przełożone na ponad trzydzieści języków. Muminki doczekały się też swojej wersji teatralnej, filmowej (między innymi serial zrealizowany w Polsce w Studio Małych Form Filmowych Se-ma-for), radiowej, telewizyjnej i komiksowej. Świat, w którym żyją Muminki, pełen jest rozmaitych stworzeń – żyją w nim Paszczaki, Hatifnatowie, Mimble – każde z nich ma swój punkt widzenia na świat, swój charakter i temperament.W Tampere, trzecim co do wielkości fińskim mieście, mieści się Muzeum „Dolina Muminków”. Natomiast w Naantali, miejscowości położonej niedaleko Turku, powstał park rozrywki \"Dolina Muminków\".", :language => 'pl')),
-     RDF::Statement(RDF::URI('http://dbpedia.org/resource/Moomin'), RDF::DC.relation, nodes[0]),
-     RDF::Statement(nodes[0], RDF::DC.title, "Comet in Moominland"),
-     RDF::Statement(nodes[0], RDF::DC.subject, nodes[1]),
-     RDF::Statement(nodes[1], RDF::SKOS.prefLabel, 'Moomin Valley'),
-     RDF::Statement(nodes[0], RDF::DC.subject, nodes[2]),
-     RDF::Statement(nodes[2], RDF::SKOS.prefLabel, 'Astronomical Events (apocryphal)')
+     RDF::Statement(RDF::URI('http://dbpedia.org/resource/Moomin'), RDF::Vocab::DC.relation, nodes[0]),
+     RDF::Statement(nodes[0], RDF::Vocab::DC.title, "Comet in Moominland"),
+     RDF::Statement(nodes[0], RDF::Vocab::DC.subject, nodes[1]),
+     RDF::Statement(nodes[1], RDF::Vocab::SKOS.prefLabel, 'Moomin Valley'),
+     RDF::Statement(nodes[0], RDF::Vocab::DC.subject, nodes[2]),
+     RDF::Statement(nodes[2], RDF::Vocab::SKOS.prefLabel, 'Astronomical Events (apocryphal)')
     ]
   }
 
@@ -49,12 +49,12 @@ describe RDF::Marmotta do
   # folks about how they currently/should handle bnodes.
   describe 'bnode handling' do
 
-    let(:node_triple) { RDF::Statement(RDF::Node.new, RDF::DC.title, 'Moomin') }
+    let(:node_triple) { RDF::Statement(RDF::Node.new, RDF::Vocab::DC.title, 'Moomin') }
 
     xit 'deletes only the relevant bnode' do
       subject << node_triple
-      subject << [RDF::Node.new, RDF::DC.title, 'Moomin']
-      subject << [RDF::Node.new, RDF::DC.title, 'Moomin']
+      subject << [RDF::Node.new, RDF::Vocab::DC.title, 'Moomin']
+      subject << [RDF::Node.new, RDF::Vocab::DC.title, 'Moomin']
       subject.delete_statement(node_triple)
       expect(subject.count).to eq 2 # returns 0
     end
