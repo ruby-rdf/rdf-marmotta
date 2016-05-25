@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = "rdf-marmotta"
-  s.version     = '0.0.8'
+  s.version     = '0.1.0'
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Tom Johnson"]
   s.homepage    = 'https://github.com/dpla/rdf-marmotta'
