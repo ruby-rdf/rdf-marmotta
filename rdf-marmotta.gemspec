@@ -17,8 +17,8 @@ Gem::Specification.new do |s|
   s.test_files    = `git ls-files -- {spec}/*`.split("\n")
 
   s.add_dependency('rake')
-  s.add_dependency('rdf', '~> 2.0')
-  s.add_dependency('sparql-client', '~> 2.0.0')
+  s.add_dependency('rdf',           '~> 2.0')
+  s.add_dependency('sparql-client', '~> 2.0.1')
   s.add_dependency('nokogiri')
   s.add_development_dependency('jettywrapper')
   s.add_development_dependency('linkeddata')

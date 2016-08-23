@@ -1,5 +1,4 @@
 require 'rdf'
-require 'rdf/rdfxml'
 require 'sparql/client'
 require 'enumerator'
 
@@ -29,14 +28,17 @@ module RDF
     end
 
     def initialize(base_url, options = {})
-      @options = options.dup
+      @options   = options.dup
+
+      @tx_class ||= @options.delete(:transaction_class) { DEFAULT_TX_CLASS }
+
       @endpoints = DEFAULT_OPTIONS
       @endpoints.merge!(options)
       @endpoints.each do |k, v|
         next unless RDF::URI(v.to_s).relative?
         @endpoints[k] = (RDF::URI(base_url.to_s) / v.to_s)
       end
-      @client = Client.new(endpoints[:sparql].to_s, options)
+      @client        = Client.new(endpoints[:sparql].to_s, options)
       @update_client = Client.new(endpoints[:sparql_update].to_s, options)
     end
 
@@ -68,7 +70,7 @@ module RDF
         .join(', ').freeze
 
       def initialize(url, options = {}, &block)
-        options[:method] ||= :get
+        options[:method]   ||= :get
         options[:protocol] ||= '1.1'
         super
       end
@@ -81,6 +83,13 @@ module RDF
            query.expects_statements? :
            (query =~ /CONSTRUCT|DESCRIBE|DELETE|CLEAR/))
 
+        super
+      end
+
+      ##
+      # @private
+      def parse_rdf_serialization(response, options = {})
+        options[:content_type] ||= 'text/turtle' if response.content_type.nil?
         super
       end
 
