@@ -1,5 +1,4 @@
 require 'rdf'
-require 'rdf/rdfxml'
 require 'sparql/client'
 require 'enumerator'
 
@@ -71,7 +70,7 @@ module RDF
         .join(', ').freeze
 
       def initialize(url, options = {}, &block)
-        options[:method] ||= :get
+        options[:method]   ||= :get
         options[:protocol] ||= '1.1'
         super
       end
@@ -84,6 +83,13 @@ module RDF
            query.expects_statements? :
            (query =~ /CONSTRUCT|DESCRIBE|DELETE|CLEAR/))
 
+        super
+      end
+
+      ##
+      # @private
+      def parse_rdf_serialization(response, options = {})
+        options[:content_type] ||= 'text/turtle' if response.content_type.nil?
         super
       end
 
