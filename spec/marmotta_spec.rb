@@ -48,7 +48,6 @@ describe RDF::Marmotta do
   # We probably want to pursue skolemization and/or talk to Marmotta
   # folks about how they currently/should handle bnodes.
   describe 'bnode handling' do
-
     let(:node_triple) { RDF::Statement(RDF::Node.new, RDF::Vocab::DC.title, 'Moomin') }
 
     xit 'deletes only the relevant bnode' do
@@ -96,7 +95,6 @@ describe RDF::Marmotta do
   end
 
   describe 'deleting' do
-
     it 'delete triples' do
       subject.delete(statement)
       expect(subject.count).to eq 0
@@ -116,15 +114,11 @@ describe RDF::Marmotta do
 
 
   # describe 'Repository' do
-  #   before do
-  #     @repository = subject
-  #   end
+  #   after { repository.clear }
 
-  #   after do
-  #     @repository.clear
-  #   end
+  #   let(:repository) { RDF::Marmotta.new(base_url, opts) }
 
-  #   include RDF_Repository
+  #   it_behaves_like 'an RDF::Repository'
   # end
 end
 
